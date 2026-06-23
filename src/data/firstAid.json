@@ -1,0 +1,38 @@
+[
+  {
+    "keywords": ["burn", "burns", "fire", "scald"],
+    "title": "Minor Burns",
+    "steps": [
+      "Cool the burn: Hold the burned area under cool (not cold) running water or apply a cool, wet compress until the pain eases.",
+      "Remove rings or tight items: Do this quickly and gently, before the burned area swells.",
+      "Don't break blisters: Fluid-filled blisters protect against infection. If a blister breaks, clean the area with water.",
+      "Apply lotion: Once a burn is completely cooled, apply a lotion, such as one that contains aloe vera or a moisturizer. This helps prevent drying and provides relief.",
+      "Bandage the burn: Cover the burn with a sterile gauze bandage (not fluffy cotton). Wrap it loosely to avoid putting pressure on burned skin."
+    ],
+    "warning": "If the burn is deep, larger than 3 inches, or covers hands, feet, face, groin, buttocks, or a major joint, seek immediate emergency medical care."
+  },
+  {
+    "keywords": ["cut", "bleeding", "wound"],
+    "title": "Minor Cuts and Scrapes",
+    "steps": [
+      "Wash your hands: This helps avoid infection.",
+      "Stop the bleeding: Minor cuts usually stop bleeding on their own. If needed, apply gentle pressure with a clean cloth or bandage.",
+      "Clean the wound: Rinse the wound with clear water. Wash around the wound with soap and a washcloth. Don't get soap in the wound.",
+      "Apply an antibiotic: Apply a thin layer of an antibiotic ointment or petroleum jelly to keep the surface moist and help prevent scarring.",
+      "Cover the wound: Apply a bandage, rolled gauze, or gauze held in place with paper tape. Covering the wound keeps it clean."
+    ],
+    "warning": "Seek medical help if the wound is deep, gaping, jagged, or if you can't get the dirt out. Also, get help if it's from a human or animal bite."
+  },
+  {
+    "keywords": ["snake", "bite"],
+    "title": "Snakebite",
+    "steps": [
+      "Move beyond the snake's striking distance.",
+      "Remain still and calm to help slow the spread of venom.",
+      "Remove jewelry and tight clothing before you start to swell.",
+      "Position yourself, if possible, so that the bite is at or below the level of your heart.",
+      "Clean the wound with soap and water. Cover it with a clean, dry dressing."
+    ],
+    "warning": "Call emergency services immediately. DO NOT try to suck out the venom, cut the wound, or apply a tourniquet."
+  }
+]

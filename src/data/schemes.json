@@ -1,0 +1,16 @@
+[
+  {
+    "keywords": ["ayushman", "bharat", "pmjay", "insurance"],
+    "name": "Ayushman Bharat PM-JAY",
+    "description": "Provides health cover of Rs. 5 lakhs per family per year for secondary and tertiary care hospitalization.",
+    "eligibility": "Based on SECC 2011 deprivation and occupational criteria for rural and urban areas respectively.",
+    "benefits": "Cashless access to health care services at empaneled hospitals."
+  },
+  {
+    "keywords": ["maternity", "pregnant", "jsy", "janani"],
+    "name": "Janani Suraksha Yojana (JSY)",
+    "description": "A safe motherhood intervention under the National Health Mission.",
+    "eligibility": "Pregnant women belonging to BPL households and SC/ST categories.",
+    "benefits": "Cash assistance for institutional delivery to reduce maternal and neonatal mortality."
+  }
+]

@@ -1,0 +1,23 @@
+[
+  {
+    "keywords": ["paracetamol", "acetaminophen", "fever", "headache"],
+    "name": "Paracetamol",
+    "use": "Mild to moderate pain relief and reducing fever.",
+    "dosage": "Adults: 500mg-1000mg every 4-6 hours. Maximum 4000mg per 24 hours.",
+    "warning": "Do not exceed the maximum dose. Can cause liver damage if taken in excess. Avoid alcohol."
+  },
+  {
+    "keywords": ["ibuprofen", "advil", "pain", "swelling", "inflammation"],
+    "name": "Ibuprofen",
+    "use": "Reducing pain, inflammation, and fever.",
+    "dosage": "Adults: 200mg-400mg every 4-6 hours as needed. Maximum 1200mg per 24 hours without prescription.",
+    "warning": "Take with food to avoid stomach upset. Do not use if you have a history of stomach ulcers or severe heart failure."
+  },
+  {
+    "keywords": ["ors", "dehydration", "diarrhea"],
+    "name": "Oral Rehydration Salts (ORS)",
+    "use": "Treating dehydration caused by diarrhea or vomiting.",
+    "dosage": "Mix one sachet in 1 liter of clean, boiled and cooled water. Drink frequently.",
+    "warning": "Use only safe, clean water to mix. Seek medical help if diarrhea persists for more than 2 days or if there is blood in stool."
+  }
+]
