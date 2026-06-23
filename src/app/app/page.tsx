@@ -9,9 +9,9 @@ type AnatomyMode = 'Cardiac' | 'Orthopedic' | 'Neurological';
 // Public BioDigital Human Model URLs
 // Note: These use standard public paths. If they require authentication, you can replace them with your custom widget IDs.
 const BIODIGITAL_MODELS = {
-  Cardiac: "https://human.biodigital.com/viewer/?m=production/maleAdult/male_heart_anatomy.json&ui-info=false&ui-search=false&ui-reset=true&ui-fullscreen=false&ui-nav=true&ui-tools=true&ui-help=false&ui-chapter-list=false&ui-label-list=true&ui-anatomy-descriptions=true&ui-tutorial=false&ui-loader=circle&ui-whiteboard=true&ui-disease-descriptions=true&disable-scroll=false",
-  Orthopedic: "https://human.biodigital.com/viewer/?m=production/maleAdult/male_skeleton.json&ui-info=false&ui-search=false&ui-reset=true&ui-fullscreen=false&ui-nav=true&ui-tools=true&ui-help=false&ui-chapter-list=false&ui-label-list=true&ui-anatomy-descriptions=true&ui-tutorial=false&ui-loader=circle&ui-whiteboard=true&ui-disease-descriptions=true&disable-scroll=false",
-  Neurological: "https://human.biodigital.com/viewer/?m=production/maleAdult/male_brain.json&ui-info=false&ui-search=false&ui-reset=true&ui-fullscreen=false&ui-nav=true&ui-tools=true&ui-help=false&ui-chapter-list=false&ui-label-list=true&ui-anatomy-descriptions=true&ui-tutorial=false&ui-loader=circle&ui-whiteboard=true&ui-disease-descriptions=true&disable-scroll=false",
+  Cardiac: "https://human.biodigital.com/widget/?m=client/biodigital/beating_heart&ui-info=false&ui-search=false&ui-reset=true&ui-fullscreen=false&ui-nav=true&ui-tools=true&ui-help=false&ui-chapter-list=false&ui-label-list=true&ui-anatomy-descriptions=true&ui-tutorial=false&ui-loader=circle&ui-whiteboard=true&ui-disease-descriptions=true&disable-scroll=false",
+  Orthopedic: "https://human.biodigital.com/widget/?m=client/biodigital/skeleton&ui-info=false&ui-search=false&ui-reset=true&ui-fullscreen=false&ui-nav=true&ui-tools=true&ui-help=false&ui-chapter-list=false&ui-label-list=true&ui-anatomy-descriptions=true&ui-tutorial=false&ui-loader=circle&ui-whiteboard=true&ui-disease-descriptions=true&disable-scroll=false",
+  Neurological: "https://human.biodigital.com/widget/?m=client/biodigital/brain&ui-info=false&ui-search=false&ui-reset=true&ui-fullscreen=false&ui-nav=true&ui-tools=true&ui-help=false&ui-chapter-list=false&ui-label-list=true&ui-anatomy-descriptions=true&ui-tutorial=false&ui-loader=circle&ui-whiteboard=true&ui-disease-descriptions=true&disable-scroll=false",
 };
 
 export default function InteractiveAnatomyIntelligence() {
