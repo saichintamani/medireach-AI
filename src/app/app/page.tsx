@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileUp, Zap, HeartPulse, Activity, AlertTriangle, CheckCircle2, Bone, Brain, ArrowRight, MessageSquare, Send, Hospital, UploadCloud } from "lucide-react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Environment, Float, ContactShadows, useGLTF, Text } from "@react-three/drei";
+import { OrbitControls, Environment, Float, ContactShadows, useGLTF, Text, Center, Bounds } from "@react-three/drei";
 import * as THREE from "three";
 
 type AnatomyMode = 'Cardiac' | 'Orthopedic' | 'Neurological';
@@ -23,49 +23,94 @@ interface DiagnosisResult {
 // The user must place 'heart.glb', 'skeleton.glb', and 'brain.glb' in the /public/models/ directory.
 
 function RealisticCardiac({ isAnalyzed, affectedNode }: { isAnalyzed: boolean, affectedNode: string }) {
-  try {
-    const { scene } = useGLTF('/models/heart.glb');
-    return <primitive object={scene} scale={2} />;
-  } catch(e) {
-    return (
-      <group>
-        <Text position={[0, 1, 0]} fontSize={0.3} color="white">Awaiting heart.glb</Text>
-        <Text position={[0, 0.5, 0]} fontSize={0.15} color="gray">Place in /public/models/</Text>
-        <mesh><sphereGeometry args={[1, 32, 32]}/><meshStandardMaterial wireframe color="red"/></mesh>
-      </group>
-    );
-  }
+  const { scene } = useGLTF('/models/heart.glb');
+  const clonedScene = React.useMemo(() => scene.clone(), [scene]);
+
+  useEffect(() => {
+    clonedScene.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const m = child as THREE.Mesh;
+        if (m.material && (m.material as THREE.MeshStandardMaterial).emissive) {
+          if (isAnalyzed) {
+            (m.material as THREE.MeshStandardMaterial).emissive = new THREE.Color("#ff4444");
+            (m.material as THREE.MeshStandardMaterial).emissiveIntensity = 0.5;
+          } else {
+            (m.material as THREE.MeshStandardMaterial).emissiveIntensity = 0;
+          }
+        }
+      }
+    });
+  }, [isAnalyzed, clonedScene]);
+
+  return (
+    <Bounds fit clip margin={1.2}>
+      <Center>
+        <primitive object={clonedScene} />
+      </Center>
+    </Bounds>
+  );
 }
 
 function RealisticOrthopedic({ isAnalyzed, affectedNode }: { isAnalyzed: boolean, affectedNode: string }) {
-  try {
-    const { scene } = useGLTF('/models/skeleton.glb');
-    return <primitive object={scene} scale={2} />;
-  } catch(e) {
-    return (
-      <group>
-        <Text position={[0, 1, 0]} fontSize={0.3} color="white">Awaiting skeleton.glb</Text>
-        <Text position={[0, 0.5, 0]} fontSize={0.15} color="gray">Place in /public/models/</Text>
-        <mesh><cylinderGeometry args={[0.5, 0.5, 3]}/><meshStandardMaterial wireframe color="orange"/></mesh>
-      </group>
-    );
-  }
+  const { scene } = useGLTF('/models/divide_within_-_medical.glb');
+  const clonedScene = React.useMemo(() => scene.clone(), [scene]);
+
+  useEffect(() => {
+    clonedScene.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const m = child as THREE.Mesh;
+        if (m.material && (m.material as THREE.MeshStandardMaterial).emissive) {
+          if (isAnalyzed) {
+            (m.material as THREE.MeshStandardMaterial).emissive = new THREE.Color("#ffaa00");
+            (m.material as THREE.MeshStandardMaterial).emissiveIntensity = 0.5;
+          } else {
+            (m.material as THREE.MeshStandardMaterial).emissiveIntensity = 0;
+          }
+        }
+      }
+    });
+  }, [isAnalyzed, clonedScene]);
+
+  return (
+    <Bounds fit clip margin={1.2}>
+      <Center>
+        <primitive object={clonedScene} />
+      </Center>
+    </Bounds>
+  );
 }
 
 function RealisticNeurological({ isAnalyzed, affectedNode }: { isAnalyzed: boolean, affectedNode: string }) {
-  try {
-    const { scene } = useGLTF('/models/brain.glb');
-    return <primitive object={scene} scale={2} />;
-  } catch(e) {
-    return (
-      <group>
-        <Text position={[0, 1, 0]} fontSize={0.3} color="white">Awaiting brain.glb</Text>
-        <Text position={[0, 0.5, 0]} fontSize={0.15} color="gray">Place in /public/models/</Text>
-        <mesh><sphereGeometry args={[1, 32, 32]}/><meshStandardMaterial wireframe color="purple"/></mesh>
-      </group>
-    );
-  }
+  const { scene } = useGLTF('/models/divide_within_-_medical.glb');
+  const clonedScene = React.useMemo(() => scene.clone(), [scene]);
+
+  useEffect(() => {
+    clonedScene.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const m = child as THREE.Mesh;
+        if (m.material && (m.material as THREE.MeshStandardMaterial).emissive) {
+          if (isAnalyzed) {
+            (m.material as THREE.MeshStandardMaterial).emissive = new THREE.Color("#aa44ff");
+            (m.material as THREE.MeshStandardMaterial).emissiveIntensity = 0.5;
+          } else {
+            (m.material as THREE.MeshStandardMaterial).emissiveIntensity = 0;
+          }
+        }
+      }
+    });
+  }, [isAnalyzed, clonedScene]);
+
+  return (
+    <Bounds fit clip margin={1.2}>
+      <Center>
+        <primitive object={clonedScene} />
+      </Center>
+    </Bounds>
+  );
 }
+
+useGLTF.preload('/models/heart.glb');
+useGLTF.preload('/models/divide_within_-_medical.glb');
 
 // Global toggle for Realistic vs Procedural
 const USE_REALISTIC_MODELS = true;
