@@ -1,18 +1,162 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileUp, Zap, HeartPulse, Activity, AlertTriangle, CheckCircle2, Bone, Brain, ArrowRight } from "lucide-react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { OrbitControls, Environment, Float, ContactShadows, MeshDistortMaterial } from "@react-three/drei";
+import * as THREE from "three";
 
 type AnatomyMode = 'Cardiac' | 'Orthopedic' | 'Neurological';
 
-// Public BioDigital Human Model URLs
-// Note: These use standard public paths. If they require authentication, you can replace them with your custom widget IDs.
-const BIODIGITAL_MODELS = {
-  Cardiac: "https://human.biodigital.com/widget/?m=client/biodigital/beating_heart&ui-info=false&ui-search=false&ui-reset=true&ui-fullscreen=false&ui-nav=true&ui-tools=true&ui-help=false&ui-chapter-list=false&ui-label-list=true&ui-anatomy-descriptions=true&ui-tutorial=false&ui-loader=circle&ui-whiteboard=true&ui-disease-descriptions=true&disable-scroll=false",
-  Orthopedic: "https://human.biodigital.com/widget/?m=client/biodigital/skeleton&ui-info=false&ui-search=false&ui-reset=true&ui-fullscreen=false&ui-nav=true&ui-tools=true&ui-help=false&ui-chapter-list=false&ui-label-list=true&ui-anatomy-descriptions=true&ui-tutorial=false&ui-loader=circle&ui-whiteboard=true&ui-disease-descriptions=true&disable-scroll=false",
-  Neurological: "https://human.biodigital.com/widget/?m=client/biodigital/brain&ui-info=false&ui-search=false&ui-reset=true&ui-fullscreen=false&ui-nav=true&ui-tools=true&ui-help=false&ui-chapter-list=false&ui-label-list=true&ui-anatomy-descriptions=true&ui-tutorial=false&ui-loader=circle&ui-whiteboard=true&ui-disease-descriptions=true&disable-scroll=false",
-};
+// --------------------------------------------------------
+// NATIVE 3D ANATOMY ENGINE COMPONENTS
+// --------------------------------------------------------
+
+function CardiacModel({ isAnalyzed }: { isAnalyzed: boolean }) {
+  const arteryRef = useRef<THREE.Mesh>(null);
+  
+  useFrame((state) => {
+    if (isAnalyzed && arteryRef.current) {
+      // Pulse the artery intensely when an anomaly is detected
+      const scale = 1 + Math.sin(state.clock.elapsedTime * 8) * 0.1;
+      arteryRef.current.scale.set(scale, scale, scale);
+    }
+  });
+
+  return (
+    <group>
+      {/* Heart Base (Main Muscle) */}
+      <mesh castShadow receiveShadow>
+        <sphereGeometry args={[2, 64, 64]} />
+        <MeshDistortMaterial color={isAnalyzed ? "#4c1d95" : "#be123c"} distort={0.2} speed={2} roughness={0.2} metalness={0.8} />
+      </mesh>
+      
+      {/* Coronary Artery (The Affected Node) */}
+      <mesh ref={arteryRef} position={[1.5, 1, 1]} castShadow>
+        <capsuleGeometry args={[0.3, 1, 16, 16]} />
+        <meshStandardMaterial 
+          color={isAnalyzed ? "#ef4444" : "#9f1239"} 
+          emissive={isAnalyzed ? "#ff0000" : "#000000"} 
+          emissiveIntensity={isAnalyzed ? 2 : 0} 
+          roughness={0.1}
+          metalness={0.5}
+        />
+      </mesh>
+      
+      {/* Floating diagnostic label */}
+      {isAnalyzed && (
+        <mesh position={[2.5, 1.5, 1.5]}>
+          <boxGeometry args={[0.05, 0.05, 0.05]} />
+          <meshBasicMaterial color="#ef4444" />
+        </mesh>
+      )}
+    </group>
+  );
+}
+
+function OrthopedicModel({ isAnalyzed }: { isAnalyzed: boolean }) {
+  const fractureRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state) => {
+    if (isAnalyzed && fractureRef.current) {
+      fractureRef.current.rotation.y = state.clock.elapsedTime * 2;
+    }
+  });
+
+  return (
+    <group rotation={[0, 0, Math.PI / 8]}>
+      {/* Main Bone Shaft */}
+      <mesh castShadow receiveShadow position={[0, 1.5, 0]}>
+        <cylinderGeometry args={[0.4, 0.4, 3, 32]} />
+        <meshStandardMaterial color="#f8fafc" roughness={0.7} metalness={0.1} />
+      </mesh>
+      <mesh castShadow receiveShadow position={[0, -1.5, 0]}>
+        <cylinderGeometry args={[0.4, 0.4, 3, 32]} />
+        <meshStandardMaterial color="#f8fafc" roughness={0.7} metalness={0.1} />
+      </mesh>
+      
+      {/* Joint Ends */}
+      <mesh castShadow position={[0, 3, 0]}><sphereGeometry args={[0.6, 32, 32]} /><meshStandardMaterial color="#f8fafc" /></mesh>
+      <mesh castShadow position={[0, -3, 0]}><sphereGeometry args={[0.6, 32, 32]} /><meshStandardMaterial color="#f8fafc" /></mesh>
+
+      {/* The Fracture Point (Affected Node) */}
+      <mesh ref={fractureRef} position={[0, 0, 0]}>
+        <torusGeometry args={[0.45, 0.1, 16, 32]} />
+        <meshStandardMaterial 
+          color={isAnalyzed ? "#f97316" : "#cbd5e1"}
+          emissive={isAnalyzed ? "#ea580c" : "#000000"}
+          emissiveIntensity={isAnalyzed ? 2 : 0}
+          wireframe={isAnalyzed}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+function NeurologicalModel({ isAnalyzed }: { isAnalyzed: boolean }) {
+  const anomalyRef = useRef<THREE.Mesh>(null);
+
+  return (
+    <group>
+      {/* Left Hemisphere */}
+      <mesh castShadow receiveShadow position={[-1.1, 0, 0]}>
+        <sphereGeometry args={[1.5, 32, 32]} />
+        <MeshDistortMaterial color="#1e1b4b" distort={0.4} speed={1} roughness={0.5} />
+      </mesh>
+      
+      {/* Right Hemisphere */}
+      <mesh castShadow receiveShadow position={[1.1, 0, 0]}>
+        <sphereGeometry args={[1.5, 32, 32]} />
+        <MeshDistortMaterial color="#1e1b4b" distort={0.4} speed={1} roughness={0.5} />
+      </mesh>
+
+      {/* Temporal Lobe Anomaly (Affected Node) */}
+      <mesh ref={anomalyRef} position={[-2, -0.5, 1]} castShadow>
+        <sphereGeometry args={[0.5, 32, 32]} />
+        <meshStandardMaterial 
+          color={isAnalyzed ? "#a855f7" : "#312e81"}
+          emissive={isAnalyzed ? "#c084fc" : "#000000"}
+          emissiveIntensity={isAnalyzed ? 1.5 : 0}
+          wireframe={isAnalyzed}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+function NativeAnatomyEngine({ mode, isAnalyzed }: { mode: AnatomyMode, isAnalyzed: boolean }) {
+  const groupRef = useRef<THREE.Group>(null);
+
+  // Auto-rotate the camera to focus on the anomaly when analysis completes
+  useFrame((state) => {
+    if (groupRef.current && isAnalyzed) {
+      // Smoothly rotate to expose the specific affected node to the user
+      if (mode === 'Cardiac') {
+        groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, Math.PI / 4, 0.02);
+      } else if (mode === 'Orthopedic') {
+        groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, Math.PI / 8, 0.02);
+      } else {
+        groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, -Math.PI / 4, 0.02);
+      }
+    }
+  });
+
+  return (
+    <group ref={groupRef}>
+      <Float speed={2} rotationIntensity={0.5} floatIntensity={1}>
+        {mode === 'Cardiac' && <CardiacModel isAnalyzed={isAnalyzed} />}
+        {mode === 'Orthopedic' && <OrthopedicModel isAnalyzed={isAnalyzed} />}
+        {mode === 'Neurological' && <NeurologicalModel isAnalyzed={isAnalyzed} />}
+      </Float>
+    </group>
+  );
+}
+
+
+// --------------------------------------------------------
+// MAIN DASHBOARD COMPONENT
+// --------------------------------------------------------
 
 export default function InteractiveAnatomyIntelligence() {
   const [activeMode, setActiveMode] = useState<AnatomyMode>('Cardiac');
@@ -61,7 +205,7 @@ export default function InteractiveAnatomyIntelligence() {
               MediReach AI
             </h1>
           </div>
-          <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Research-Grade Interactive Anatomy</p>
+          <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Native Interactive 3D Anatomy Engine</p>
         </div>
 
         {/* Dynamic State Area */}
@@ -145,8 +289,8 @@ export default function InteractiveAnatomyIntelligence() {
 
               <div className="space-y-4">
                 <AnalysisStep label="Extracting Vitals & Biomarkers..." active={analysisStep >= 0} completed={analysisStep > 0} />
-                <AnalysisStep label="Mapping Abnormalities..." active={analysisStep >= 1} completed={analysisStep > 2} />
-                <AnalysisStep label="Calculating Predictive Risk..." active={analysisStep >= 2} completed={analysisStep > 3} />
+                <AnalysisStep label="Mapping Affected Anatomy Node..." active={analysisStep >= 1} completed={analysisStep > 2} />
+                <AnalysisStep label="Highlighting 3D Vector Space..." active={analysisStep >= 2} completed={analysisStep > 3} />
               </div>
             </motion.div>
           )}
@@ -191,25 +335,25 @@ export default function InteractiveAnatomyIntelligence() {
                 <div className="bg-red-950/20 border border-red-900/50 rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <AlertTriangle className="text-red-500" size={16} />
-                    <h4 className="text-red-400 font-bold text-[10px] uppercase tracking-widest">Disease Recognition</h4>
+                    <h4 className="text-red-400 font-bold text-[10px] uppercase tracking-widest">Anomaly Localized</h4>
                   </div>
                   <ul className="text-slate-300 text-sm space-y-2 ml-6 list-disc marker:text-red-500">
                     {activeMode === 'Cardiac' && (
                       <>
-                        <li>Elevated blood pressure indicators (145/95 mmHg)</li>
-                        <li>Atherosclerosis markers detected in coronary arteries</li>
+                        <li>Atherosclerosis markers detected in <span className="font-bold text-red-400">Coronary Artery</span>.</li>
+                        <li>See 3D visualization: Artery pulsing red due to 85% blockage detected in scan.</li>
                       </>
                     )}
                     {activeMode === 'Orthopedic' && (
                       <>
-                        <li>Decreased bone mineral density (T-score: -2.1)</li>
-                        <li>Early indicators of Osteopenia</li>
+                        <li>Hairline fracture detected on the <span className="font-bold text-orange-400">Distal Radius Shaft</span>.</li>
+                        <li>See 3D visualization: Bone integrity compromised at the orange focal point.</li>
                       </>
                     )}
                     {activeMode === 'Neurological' && (
                       <>
-                        <li>No acute intracranial hemorrhage</li>
-                        <li>Minor white matter hyperintensities (Age-appropriate)</li>
+                        <li>Minor fluid hyperintensity in the <span className="font-bold text-purple-400">Left Temporal Lobe</span>.</li>
+                        <li>See 3D visualization: Affected node glowing purple in left hemisphere.</li>
                       </>
                     )}
                   </ul>
@@ -218,12 +362,12 @@ export default function InteractiveAnatomyIntelligence() {
                 <div className="bg-teal-950/20 border border-teal-900/50 rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Activity className="text-teal-500" size={16} />
-                    <h4 className="text-teal-400 font-bold text-[10px] uppercase tracking-widest">Symptoms & Recommendation</h4>
+                    <h4 className="text-teal-400 font-bold text-[10px] uppercase tracking-widest">Recommendation</h4>
                   </div>
                   <p className="text-slate-300 text-sm leading-relaxed">
-                    {activeMode === 'Cardiac' && "Immediate lifestyle modification advised. Focus on reducing sodium intake. Correlates with reported chest tightness."}
-                    {activeMode === 'Orthopedic' && "Increase Calcium and Vitamin D intake. Recommend weight-bearing exercises to halt density degradation."}
-                    {activeMode === 'Neurological' && "Neurological pathways are stable. Continue current sleep and hydration regimen."}
+                    {activeMode === 'Cardiac' && "Immediate angioplasty consultation required for the highlighted coronary vessel."}
+                    {activeMode === 'Orthopedic' && "Immobilize the radius immediately. Proceed with casting to fuse the highlighted fracture zone."}
+                    {activeMode === 'Neurological' && "Neurological pathways are largely stable. Schedule a follow-up MRI in 6 months to monitor the highlighted temporal node."}
                   </p>
                 </div>
               </div>
@@ -240,36 +384,35 @@ export default function InteractiveAnatomyIntelligence() {
 
       </div>
 
-      {/* CENTER PANEL: BIODIGITAL HUMAN PLATFORM INTEGRATION */}
-      <div className="flex-1 relative bg-black flex flex-col">
+      {/* CENTER PANEL: NATIVE 3D ANATOMY ENGINE */}
+      <div className="flex-1 relative bg-black flex flex-col cursor-move">
         
         {/* Header HUD Overlay */}
         <div className="absolute top-6 left-6 z-10 flex items-center gap-4 pointer-events-none">
           <div className="bg-black/60 backdrop-blur-md border border-slate-700 px-4 py-2 rounded-lg flex items-center gap-3">
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-slate-300 font-bold text-xs uppercase tracking-widest">BioDigital Human Engine</span>
+            <span className="text-slate-300 font-bold text-xs uppercase tracking-widest">MediReach Native 3D Engine</span>
           </div>
-          <div className="bg-black/60 backdrop-blur-md border border-slate-700 px-4 py-2 rounded-lg">
+          <div className="bg-black/60 backdrop-blur-md border border-slate-700 px-4 py-2 rounded-lg flex items-center gap-2">
+            {getModeIcon()}
             <span className="text-indigo-400 font-bold text-xs uppercase tracking-widest">{activeMode} Subsystem Loaded</span>
           </div>
         </div>
 
-        {/* BioDigital Iframe Wrapper */}
+        {/* Native React-Three-Fiber Canvas */}
         <div className="flex-1 w-full h-full relative">
-          {/* Loading overlay while iframe boots */}
-          <div className="absolute inset-0 flex items-center justify-center bg-[#020617] -z-10">
-            <div className="w-12 h-12 border-4 border-indigo-900 border-t-indigo-500 rounded-full animate-spin" />
-          </div>
-          
-          <iframe 
-            id="biodigital-widget"
-            src={BIODIGITAL_MODELS[activeMode]}
-            width="100%" 
-            height="100%" 
-            className="border-0"
-            allowFullScreen
-            title={`BioDigital Human - ${activeMode}`}
-          />
+          <Canvas camera={{ position: [0, 0, 8], fov: 45 }}>
+            <color attach="background" args={["#020617"]} />
+            <ambientLight intensity={0.5} />
+            <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
+            <pointLight position={[-10, -10, -10]} intensity={0.5} />
+            
+            <NativeAnatomyEngine mode={activeMode} isAnalyzed={uploadState === 'complete'} />
+            
+            <ContactShadows position={[0, -3.5, 0]} opacity={0.4} scale={20} blur={2} far={4} />
+            <OrbitControls enablePan={false} maxPolarAngle={Math.PI / 1.5} minPolarAngle={Math.PI / 3} />
+            <Environment preset="city" />
+          </Canvas>
         </div>
         
         {/* Post-Analysis Focus HUD */}
@@ -281,9 +424,9 @@ export default function InteractiveAnatomyIntelligence() {
               exit={{ opacity: 0, y: 20 }}
               className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 pointer-events-none"
             >
-              <div className="bg-indigo-950/80 backdrop-blur-md border border-indigo-500/50 px-6 py-3 rounded-full flex items-center gap-3 shadow-[0_0_30px_rgba(99,102,241,0.3)]">
-                <span className="text-indigo-300 font-bold text-sm">Interact with the 3D model above to explore affected regions.</span>
-                <ArrowRight className="text-indigo-400" size={16} />
+              <div className="bg-indigo-950/80 backdrop-blur-md border border-indigo-500/50 px-6 py-3 rounded-full flex flex-col items-center gap-1 shadow-[0_0_30px_rgba(99,102,241,0.3)]">
+                <span className="text-indigo-300 font-bold text-sm">Target localized in 3D Space.</span>
+                <span className="text-indigo-400 text-[10px] uppercase tracking-widest flex items-center gap-1">Drag to rotate <ArrowRight size={12}/></span>
               </div>
             </motion.div>
           )}
