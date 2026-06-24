@@ -5,8 +5,6 @@
   
   ### Autonomous Healthcare Intelligence Platform
   
-  ![MediReach AI Demo Video](public/demo.webp)
-  
   [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
   [![React](https://img.shields.io/badge/React-18-blue?style=for-the-badge&logo=react)](https://react.dev/)
   [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
@@ -136,6 +134,24 @@ npm run dev
 ```
 
 Visit `http://localhost:3000` to access the terminal.
+
+---
+
+## 🎬 Live Platform Demo
+
+**Experience MediReach AI in action.** This comprehensive walkthrough highlights the cybernetic OS, multi-agent reasoning, and interactive 3D digital twin functionality.
+
+<div align="center">
+  <img src="public/demo.webp" alt="MediReach AI Interactive Demo" width="100%" />
+</div>
+
+<br />
+
+### 🌟 Key Demo Highlights:
+- 🔐 **Biometric Handshake:** Secure, futuristic authentication via matrix scanning.
+- 🫀 **3D Native GLTF Engine:** An interactive, dynamically rendered 3D heart representing patient health.
+- 📡 **Deep Intelligence OS:** Real-time data streams and predictive healthcare analytics dashboard.
+- 🏥 **Emergency Locator:** Rapid, context-aware nearby hospital identification.
 
 ---
 
