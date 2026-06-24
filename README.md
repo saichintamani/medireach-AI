@@ -40,26 +40,69 @@ Our system is engineered to scale from a patient portal into a full research-gra
 ### 5. Infrastructure Layer
 - **Cloud Native:** Dockerized, monitored, and deployed with robust CI/CD pipelines.
 
+### 📊 Visual Architecture Diagram
+
+```mermaid
+graph TD
+    %% Define Styles
+    classDef ui fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#fff
+    classDef agent fill:#1e1b4b,stroke:#a855f7,stroke-width:2px,color:#fff
+    classDef core fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#fff
+    classDef data fill:#451a03,stroke:#fbbf24,stroke-width:2px,color:#fff
+
+    %% Components
+    subgraph UI_Layer [Patient Experience Layer]
+        A[Cybernetic Dashboard]:::ui
+        B[Interactive 3D Digital Twin]:::ui
+        C[Biometric Auth]:::ui
+    end
+
+    subgraph Agent_Layer [Multi-Agent Reasoning Layer]
+        D[Report Analysis Agent]:::agent
+        E[Emergency Risk Agent]:::agent
+        F[Lifestyle & Nutrition Agent]:::agent
+    end
+
+    subgraph Medical_Layer [Medical Intelligence Layer]
+        G[Medical Knowledge RAG]:::core
+        H[Risk & Evidence Engines]:::core
+    end
+
+    subgraph Data_Layer [Data & Infrastructure]
+        I[(PostgreSQL)]:::data
+        J[(Qdrant Vectors)]:::data
+        K[(Redis)]:::data
+    end
+
+    %% Flow
+    UI_Layer -->|Data / Queries| Agent_Layer
+    Agent_Layer -->|Context Gathering| Medical_Layer
+    Medical_Layer -->|Database Operations| Data_Layer
+    Data_Layer -->|Evidence Retrieval| Medical_Layer
+    Medical_Layer -->|Explainable AI Results| Agent_Layer
+    Agent_Layer -->|Live Updates| UI_Layer
+```
+
 ---
 
 ## 🚀 The 5-Phase Roadmap
 
 MediReach AI is actively being developed in 5 distinct phases to achieve the ultimate vision of a research-grade Healthcare OS.
 
-### ✅ Phase 1: Foundation (In Progress)
+### 🚀 Phase 1: Foundation (Completed)
 - [x] High-contrast Cybernetic UI & Landing Page
 - [x] Biometric Hardware Authentication (Face ID / Fingerprint Matrix)
-- [ ] Central Patient Dashboard
-- [ ] Medical Report Upload Interface
+- [x] Central Patient Dashboard
+- [x] Medical Report Upload Interface
 
-### ⏳ Phase 2: Medical Vision
-- [ ] Upload processing for ECG, Chest X-Rays, and Blood Reports.
-- [ ] Automated AI extraction of medical findings.
-- [ ] Explainability UI (Showing the *Why* behind the findings).
+### 🧠 Phase 2: Medical Vision (Completed)
+- [x] Upload processing for ECG, Chest X-Rays, and Blood Reports.
+- [x] Automated AI extraction of medical findings.
+- [x] Explainability UI (Showing the *Why* behind the findings).
 
-### ⏳ Phase 3: The Digital Twin
-- [ ] Initial mapping of patient data to a Virtual Health Clone.
-- [ ] Interactive 3D human body interface.
+### 🧬 Phase 3: The Digital Twin (In Progress)
+- [x] Initial mapping of patient data to a Virtual Health Clone.
+- [x] Interactive 3D human body interface.
 
 ### ⏳ Phase 4: 3D Anatomical Interaction
 - [ ] Component-level 3D breakdowns (e.g., clicking the 'Heart' opens the Heart Health Dashboard).

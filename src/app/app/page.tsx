@@ -361,14 +361,19 @@ export default function InteractiveAnatomyIntelligence() {
       <div className="w-[500px] bg-slate-900/80 backdrop-blur-2xl border-r border-slate-800 p-8 flex flex-col z-20 shadow-[20px_0_50px_rgba(0,0,0,0.5)] overflow-y-auto custom-scrollbar">
         
         {/* Header */}
-        <div className="mb-6 flex-shrink-0">
-          <div className="flex items-center gap-3 mb-2">
-            <img src="/logo.png" alt="MediReach Logo" className="w-10 h-10 object-contain drop-shadow-[0_0_10px_rgba(99,102,241,0.5)]" />
-            <h1 className="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-indigo-500 tracking-tighter">
-              MediReach AI
-            </h1>
+        <div className="mb-6 flex-shrink-0 flex justify-between items-start">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <img src="/logo.png" alt="MediReach Logo" className="w-10 h-10 object-contain drop-shadow-[0_0_10px_rgba(99,102,241,0.5)]" />
+              <h1 className="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-indigo-500 tracking-tighter">
+                MediReach AI
+              </h1>
+            </div>
+            <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Deep Intelligence OS</p>
           </div>
-          <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Deep Intelligence OS</p>
+          <a href="/twin" className="px-4 py-2 bg-indigo-900/40 border border-indigo-500/50 rounded-xl text-indigo-300 text-[10px] font-bold uppercase tracking-widest hover:bg-indigo-600 hover:text-white transition-all shadow-[0_0_15px_rgba(99,102,241,0.3)] flex items-center gap-2">
+            <Activity size={14} /> Digital Twin
+          </a>
         </div>
 
         {/* Dynamic State Area */}

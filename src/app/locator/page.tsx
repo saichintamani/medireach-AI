@@ -20,21 +20,32 @@ export default function LocatorPage() {
     }
 
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      async (position) => {
         setLocation({
           lat: position.coords.latitude,
           lng: position.coords.longitude
         });
         
-        // Mocking API call to find hospitals
-        setTimeout(() => {
-          setHospitals([
-            { id: 1, name: "City General Hospital", distance: "1.2 km", status: "Open 24/7", emergency: true },
-            { id: 2, name: "Mercy Care Clinic", distance: "3.5 km", status: "Closes at 8 PM", emergency: false },
-            { id: 3, name: "St. Jude's Medical Center", distance: "5.1 km", status: "Open 24/7", emergency: true },
-          ]);
+        try {
+          const res = await fetch("/api/hospitals", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+              lat: position.coords.latitude, 
+              lng: position.coords.longitude 
+            })
+          });
+          const json = await res.json();
+          if (json.success && json.data) {
+            setHospitals(json.data);
+          } else {
+            setError("Failed to process hospital data.");
+          }
+        } catch (err) {
+          setError("Network error while finding hospitals.");
+        } finally {
           setIsLocating(false);
-        }, 1500);
+        }
       },
       (err) => {
         setError("Unable to retrieve your location. Please ensure location services are enabled.");
