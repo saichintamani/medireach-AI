@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Groq from "groq-sdk";
 
-const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || "");
+const groq = new Groq({ apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY || "" });
 
 export async function POST(req: NextRequest) {
   try {
     const { message, diagnosis, history, locationCoordinates } = await req.json();
-
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `
       You are the MediReach AI Hospital Assistant.
@@ -27,12 +25,23 @@ export async function POST(req: NextRequest) {
       Respond directly to the user as the AI assistant:
     `;
 
-    const result = await model.generateContent(prompt);
-    
-    return NextResponse.json({ reply: result.response.text() });
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      model: "llama-3.3-70b-versatile",
+      temperature: 0.5,
+    });
+
+    const reply = chatCompletion.choices[0].message.content || "I am currently unable to process your request.";
+
+    return NextResponse.json({ reply });
 
   } catch (error) {
     console.error("Chat API Error:", error);
-    return NextResponse.json({ reply: "I am experiencing network difficulties reaching the medical database. Please try again." });
+    return NextResponse.json({ reply: "I am experiencing network difficulties reaching the medical database. Please ensure your Groq API key is valid." });
   }
 }
