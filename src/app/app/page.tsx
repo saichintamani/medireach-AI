@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileUp, Zap, HeartPulse, Activity, AlertTriangle, CheckCircle2, Bone, Brain, ArrowRight, MessageSquare, Send, Hospital, UploadCloud } from "lucide-react";
+import { FileUp, Zap, HeartPulse, Activity, AlertTriangle, CheckCircle2, Bone, Brain, ArrowRight, MessageSquare, Send, Hospital, UploadCloud, MapPin, AlertOctagon } from "lucide-react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Environment, Float, ContactShadows, useGLTF, Text, Center, Bounds } from "@react-three/drei";
 import * as THREE from "three";
@@ -15,6 +15,10 @@ interface DiagnosisResult {
   affectedNode: string;
   recommendation: string;
   severity: "low" | "medium" | "high" | "critical";
+  explanation?: string;
+  consequences?: string;
+  action_plan?: string[];
+  flaws?: string[];
 }
 
 // --------------------------------------------------------
@@ -22,7 +26,7 @@ interface DiagnosisResult {
 // --------------------------------------------------------
 // The user must place 'heart.glb', 'skeleton.glb', and 'brain.glb' in the /public/models/ directory.
 
-function RealisticCardiac({ isAnalyzed, affectedNode }: { isAnalyzed: boolean, affectedNode: string }) {
+function RealisticCardiac({ isAnalyzed, hasFlaws }: { isAnalyzed: boolean, hasFlaws: boolean }) {
   const { scene } = useGLTF('/models/heart.glb');
   const clonedScene = React.useMemo(() => scene.clone(), [scene]);
 
@@ -32,15 +36,15 @@ function RealisticCardiac({ isAnalyzed, affectedNode }: { isAnalyzed: boolean, a
         const m = child as THREE.Mesh;
         if (m.material && (m.material as THREE.MeshStandardMaterial).emissive) {
           if (isAnalyzed) {
-            (m.material as THREE.MeshStandardMaterial).emissive = new THREE.Color("#ff4444");
-            (m.material as THREE.MeshStandardMaterial).emissiveIntensity = 0.5;
+            (m.material as THREE.MeshStandardMaterial).emissive = new THREE.Color(hasFlaws ? "#ff0000" : "#ff4444");
+            (m.material as THREE.MeshStandardMaterial).emissiveIntensity = hasFlaws ? 1.5 : 0.5;
           } else {
             (m.material as THREE.MeshStandardMaterial).emissiveIntensity = 0;
           }
         }
       }
     });
-  }, [isAnalyzed, clonedScene]);
+  }, [isAnalyzed, hasFlaws, clonedScene]);
 
   return (
     <Bounds fit clip margin={1.2}>
@@ -51,7 +55,7 @@ function RealisticCardiac({ isAnalyzed, affectedNode }: { isAnalyzed: boolean, a
   );
 }
 
-function RealisticOrthopedic({ isAnalyzed, affectedNode }: { isAnalyzed: boolean, affectedNode: string }) {
+function RealisticOrthopedic({ isAnalyzed, hasFlaws }: { isAnalyzed: boolean, hasFlaws: boolean }) {
   const { scene } = useGLTF('/models/divide_within_-_medical.glb');
   const clonedScene = React.useMemo(() => scene.clone(), [scene]);
 
@@ -61,15 +65,15 @@ function RealisticOrthopedic({ isAnalyzed, affectedNode }: { isAnalyzed: boolean
         const m = child as THREE.Mesh;
         if (m.material && (m.material as THREE.MeshStandardMaterial).emissive) {
           if (isAnalyzed) {
-            (m.material as THREE.MeshStandardMaterial).emissive = new THREE.Color("#ffaa00");
-            (m.material as THREE.MeshStandardMaterial).emissiveIntensity = 0.5;
+            (m.material as THREE.MeshStandardMaterial).emissive = new THREE.Color(hasFlaws ? "#ff2200" : "#ffaa00");
+            (m.material as THREE.MeshStandardMaterial).emissiveIntensity = hasFlaws ? 1.5 : 0.5;
           } else {
             (m.material as THREE.MeshStandardMaterial).emissiveIntensity = 0;
           }
         }
       }
     });
-  }, [isAnalyzed, clonedScene]);
+  }, [isAnalyzed, hasFlaws, clonedScene]);
 
   return (
     <Bounds fit clip margin={1.2}>
@@ -80,7 +84,7 @@ function RealisticOrthopedic({ isAnalyzed, affectedNode }: { isAnalyzed: boolean
   );
 }
 
-function RealisticNeurological({ isAnalyzed, affectedNode }: { isAnalyzed: boolean, affectedNode: string }) {
+function RealisticNeurological({ isAnalyzed, hasFlaws }: { isAnalyzed: boolean, hasFlaws: boolean }) {
   const { scene } = useGLTF('/models/divide_within_-_medical.glb');
   const clonedScene = React.useMemo(() => scene.clone(), [scene]);
 
@@ -90,15 +94,15 @@ function RealisticNeurological({ isAnalyzed, affectedNode }: { isAnalyzed: boole
         const m = child as THREE.Mesh;
         if (m.material && (m.material as THREE.MeshStandardMaterial).emissive) {
           if (isAnalyzed) {
-            (m.material as THREE.MeshStandardMaterial).emissive = new THREE.Color("#aa44ff");
-            (m.material as THREE.MeshStandardMaterial).emissiveIntensity = 0.5;
+            (m.material as THREE.MeshStandardMaterial).emissive = new THREE.Color(hasFlaws ? "#ff00ff" : "#aa44ff");
+            (m.material as THREE.MeshStandardMaterial).emissiveIntensity = hasFlaws ? 1.5 : 0.5;
           } else {
             (m.material as THREE.MeshStandardMaterial).emissiveIntensity = 0;
           }
         }
       }
     });
-  }, [isAnalyzed, clonedScene]);
+  }, [isAnalyzed, hasFlaws, clonedScene]);
 
   return (
     <Bounds fit clip margin={1.2}>
@@ -115,22 +119,22 @@ useGLTF.preload('/models/divide_within_-_medical.glb');
 // Global toggle for Realistic vs Procedural
 const USE_REALISTIC_MODELS = true;
 
-function NativeAnatomyEngine({ mode, isAnalyzed, affectedNode }: { mode: AnatomyMode, isAnalyzed: boolean, affectedNode: string }) {
+function NativeAnatomyEngine({ mode, isAnalyzed, hasFlaws }: { mode: AnatomyMode, isAnalyzed: boolean, hasFlaws: boolean }) {
   const groupRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
     if (groupRef.current) {
-      groupRef.current.rotation.y += 0.005;
+      groupRef.current.rotation.y += hasFlaws ? 0.015 : 0.005; // Spin faster if emergency
     }
   });
 
   return (
     <group ref={groupRef}>
-      <Float speed={2} rotationIntensity={0.5} floatIntensity={1}>
+      <Float speed={hasFlaws ? 4 : 2} rotationIntensity={0.5} floatIntensity={1}>
         <Suspense fallback={<Text color="white">Loading 3D Asset...</Text>}>
-          {mode === 'Cardiac' && <RealisticCardiac isAnalyzed={isAnalyzed} affectedNode={affectedNode} />}
-          {mode === 'Orthopedic' && <RealisticOrthopedic isAnalyzed={isAnalyzed} affectedNode={affectedNode} />}
-          {mode === 'Neurological' && <RealisticNeurological isAnalyzed={isAnalyzed} affectedNode={affectedNode} />}
+          {mode === 'Cardiac' && <RealisticCardiac isAnalyzed={isAnalyzed} hasFlaws={hasFlaws} />}
+          {mode === 'Orthopedic' && <RealisticOrthopedic isAnalyzed={isAnalyzed} hasFlaws={hasFlaws} />}
+          {mode === 'Neurological' && <RealisticNeurological isAnalyzed={isAnalyzed} hasFlaws={hasFlaws} />}
         </Suspense>
       </Float>
     </group>
@@ -139,20 +143,56 @@ function NativeAnatomyEngine({ mode, isAnalyzed, affectedNode }: { mode: Anatomy
 
 
 // --------------------------------------------------------
-// HOSPITAL CHATBOT COMPONENT
+// HOSPITAL CHATBOT COMPONENT (WITH GEOLOCATION)
 // --------------------------------------------------------
 
-function HospitalChatbot({ diagnosis }: { diagnosis: DiagnosisResult | null }) {
-  const [messages, setMessages] = useState<{role: 'user' | 'ai', content: string}[]>([
-    { role: 'ai', content: `Hello. I have reviewed your ${diagnosis?.disease} diagnosis. Do you need a hospital recommendation? Please provide your city or zip code.` }
-  ]);
+function HospitalChatbot({ diagnosis, locationCoords }: { diagnosis: DiagnosisResult | null, locationCoords: {lat: number, lng: number} | null }) {
+  const [messages, setMessages] = useState<{role: 'user' | 'ai', content: string}[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Auto-initialize chatbot with geolocation
+  useEffect(() => {
+    if (diagnosis && !initialized) {
+      setInitialized(true);
+      const initChat = async () => {
+        setIsTyping(true);
+        let initMsg = `Hello. I have reviewed your ${diagnosis.disease} diagnosis.`;
+        if (locationCoords) {
+          initMsg += ` I am automatically fetching specialized hospitals near your current GPS location...`;
+          setMessages([{ role: 'ai', content: initMsg }]);
+          
+          try {
+            const res = await fetch('/api/hospital-chat', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                message: "Please recommend hospitals based on my GPS coordinates.",
+                diagnosis: diagnosis,
+                history: [],
+                locationCoordinates: locationCoords
+              })
+            });
+            const data = await res.json();
+            setMessages(prev => [...prev, { role: 'ai', content: data.reply }]);
+          } catch (e) {
+            setMessages(prev => [...prev, { role: 'ai', content: "Error communicating with hospital database." }]);
+          }
+        } else {
+          initMsg += ` Please provide your city or zip code so I can recommend nearby hospitals.`;
+          setMessages([{ role: 'ai', content: initMsg }]);
+        }
+        setIsTyping(false);
+      };
+      initChat();
+    }
+  }, [diagnosis, locationCoords, initialized]);
 
   const sendMessage = async () => {
     if(!input.trim()) return;
@@ -168,7 +208,8 @@ function HospitalChatbot({ diagnosis }: { diagnosis: DiagnosisResult | null }) {
         body: JSON.stringify({
           message: userMsg,
           diagnosis: diagnosis,
-          history: messages
+          history: messages,
+          locationCoordinates: locationCoords
         })
       });
       const data = await res.json();
@@ -180,16 +221,24 @@ function HospitalChatbot({ diagnosis }: { diagnosis: DiagnosisResult | null }) {
   };
 
   return (
-    <div className="mt-8 bg-slate-950/50 border border-indigo-500/30 rounded-2xl flex flex-col h-[350px] overflow-hidden">
-      <div className="bg-indigo-900/40 p-3 border-b border-indigo-500/30 flex items-center gap-2">
-        <Hospital size={16} className="text-indigo-400" />
-        <span className="text-indigo-100 font-bold text-xs uppercase tracking-widest">MediReach Emergency Agent</span>
+    <div className="mt-8 bg-slate-950/50 border border-indigo-500/30 rounded-2xl flex flex-col h-[350px] overflow-hidden flex-shrink-0">
+      <div className="bg-indigo-900/40 p-3 border-b border-indigo-500/30 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Hospital size={16} className="text-indigo-400" />
+          <span className="text-indigo-100 font-bold text-xs uppercase tracking-widest">MediReach Emergency Agent</span>
+        </div>
+        {locationCoords && (
+          <div className="flex items-center gap-1 text-[10px] text-green-400 bg-green-900/30 px-2 py-1 rounded-full border border-green-500/30">
+            <MapPin size={10} />
+            GPS Active
+          </div>
+        )}
       </div>
       
       <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
         {messages.map((m, i) => (
           <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[85%] rounded-2xl p-3 text-sm ${m.role === 'user' ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-slate-800 text-indigo-100 rounded-bl-none border border-slate-700'}`}>
+            <div className={`max-w-[85%] rounded-2xl p-3 text-sm whitespace-pre-wrap ${m.role === 'user' ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-slate-800 text-indigo-100 rounded-bl-none border border-slate-700'}`}>
               {m.content}
             </div>
           </div>
@@ -232,6 +281,7 @@ export default function InteractiveAnatomyIntelligence() {
   const [uploadState, setUploadState] = useState<'idle' | 'analyzing' | 'complete'>('idle');
   const [analysisStep, setAnalysisStep] = useState(0);
   const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null);
+  const [locationCoords, setLocationCoords] = useState<{lat: number, lng: number} | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // TRUE AI FILE UPLOAD
@@ -243,10 +293,26 @@ export default function InteractiveAnatomyIntelligence() {
     
     // UI Loading sequence while awaiting real API
     const stepInterval = setInterval(() => {
-      setAnalysisStep(prev => prev < 3 ? prev + 1 : prev);
+      setAnalysisStep(prev => prev < 4 ? prev + 1 : prev);
     }, 1500);
 
     try {
+      // 1. Ask for Geolocation in parallel
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setLocationCoords({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            });
+          },
+          (error) => {
+            console.warn("Geolocation denied or failed:", error);
+          }
+        );
+      }
+
+      // 2. Send to Deep AI
       const formData = new FormData();
       formData.append("file", file);
       formData.append("mode", activeMode);
@@ -259,7 +325,7 @@ export default function InteractiveAnatomyIntelligence() {
       const json = await res.json();
       
       clearInterval(stepInterval);
-      setAnalysisStep(3);
+      setAnalysisStep(4);
       setDiagnosis(json.data);
       setUploadState('complete');
 
@@ -275,6 +341,7 @@ export default function InteractiveAnatomyIntelligence() {
     setUploadState('idle');
     setAnalysisStep(0);
     setDiagnosis(null);
+    setLocationCoords(null);
   };
 
   const getModeIcon = () => {
@@ -285,21 +352,23 @@ export default function InteractiveAnatomyIntelligence() {
     }
   };
 
+  const hasFlaws = !!diagnosis?.flaws && diagnosis.flaws.length > 0;
+
   return (
     <div className="flex h-screen bg-[#020617] overflow-hidden font-sans">
       
       {/* LEFT PANEL: Real Report Upload & Chatbot */}
-      <div className="w-[450px] bg-slate-900/80 backdrop-blur-2xl border-r border-slate-800 p-8 flex flex-col z-20 shadow-[20px_0_50px_rgba(0,0,0,0.5)] overflow-y-auto custom-scrollbar">
+      <div className="w-[500px] bg-slate-900/80 backdrop-blur-2xl border-r border-slate-800 p-8 flex flex-col z-20 shadow-[20px_0_50px_rgba(0,0,0,0.5)] overflow-y-auto custom-scrollbar">
         
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-6 flex-shrink-0">
           <div className="flex items-center gap-3 mb-2">
             <img src="/logo.png" alt="MediReach Logo" className="w-10 h-10 object-contain drop-shadow-[0_0_10px_rgba(99,102,241,0.5)]" />
             <h1 className="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-indigo-500 tracking-tighter">
               MediReach AI
             </h1>
           </div>
-          <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">True Intelligence OS</p>
+          <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Deep Intelligence OS</p>
         </div>
 
         {/* Dynamic State Area */}
@@ -314,7 +383,7 @@ export default function InteractiveAnatomyIntelligence() {
               exit={{ opacity: 0, scale: 0.95 }}
               className="flex-1 flex flex-col"
             >
-              <div className="mb-8">
+              <div className="mb-8 flex-shrink-0">
                 <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-3">Select System Target</h3>
                 <div className="grid grid-cols-3 gap-2">
                   {(['Cardiac', 'Orthopedic', 'Neurological'] as AnatomyMode[]).map((mode) => (
@@ -342,7 +411,7 @@ export default function InteractiveAnatomyIntelligence() {
                 <UploadCloud className="text-indigo-400" size={20} /> Upload Actual Report
               </h2>
               <p className="text-slate-400 text-sm mb-6">
-                Upload your true medical PDF or Image. Gemini AI will evaluate it in real-time.
+                Upload your true medical PDF or Image. Gemini AI will deeply evaluate it in real-time.
               </p>
               
               <input 
@@ -362,7 +431,7 @@ export default function InteractiveAnatomyIntelligence() {
                 </div>
                 <p className="text-slate-300 font-bold mb-1">Select File to Evaluate</p>
                 <div className="mt-6 px-6 py-2 bg-indigo-600/20 text-indigo-400 rounded-full text-[10px] font-black uppercase tracking-widest border border-indigo-500/30 group-hover:bg-indigo-600 group-hover:text-white transition-all">
-                  Initialize Real AI
+                  Initialize Deep AI
                 </div>
               </div>
             </motion.div>
@@ -377,18 +446,19 @@ export default function InteractiveAnatomyIntelligence() {
               exit={{ opacity: 0, scale: 0.95 }}
               className="flex-1 flex flex-col justify-center"
             >
-              <div className="relative w-full h-48 bg-black/40 rounded-2xl border border-indigo-500/30 overflow-hidden flex items-center justify-center mb-8 shadow-[0_0_30px_rgba(99,102,241,0.15)]">
+              <div className="relative w-full h-48 bg-black/40 rounded-2xl border border-indigo-500/30 overflow-hidden flex items-center justify-center mb-8 shadow-[0_0_30px_rgba(99,102,241,0.15)] flex-shrink-0">
                 <div className="absolute top-0 left-0 w-full h-1 bg-indigo-400 shadow-[0_0_15px_rgba(99,102,241,1)] scanner-line" />
                 <div className="relative z-10 flex flex-col items-center">
                   <Zap className="text-indigo-400 mb-2 animate-pulse" size={32} />
-                  <span className="text-indigo-300 font-bold tracking-widest text-sm uppercase">Reading Real File via Gemini AI</span>
+                  <span className="text-indigo-300 font-bold tracking-widest text-sm uppercase text-center px-4">Deep Scanning Medical Document...<br/>Requesting GPS Location...</span>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <AnalysisStep label="Parsing PDF/Image Text..." active={analysisStep >= 0} completed={analysisStep > 0} />
-                <AnalysisStep label="Evaluating Structural Anomalies..." active={analysisStep >= 1} completed={analysisStep > 1} />
-                <AnalysisStep label="Retrieving GLTF Object Mappings..." active={analysisStep >= 2} completed={analysisStep > 2} />
+                <AnalysisStep label="Parsing Deep Anatomical Metrics..." active={analysisStep >= 0} completed={analysisStep > 0} />
+                <AnalysisStep label="Evaluating Flaws & Emergencies..." active={analysisStep >= 1} completed={analysisStep > 1} />
+                <AnalysisStep label="Generating Action Plan..." active={analysisStep >= 2} completed={analysisStep > 2} />
+                <AnalysisStep label="Retrieving GLTF Object Mappings..." active={analysisStep >= 3} completed={analysisStep > 3} />
               </div>
             </motion.div>
           )}
@@ -401,38 +471,60 @@ export default function InteractiveAnatomyIntelligence() {
               animate={{ opacity: 1, x: 0 }}
               className="flex-1 flex flex-col pb-4"
             >
-              <div className="bg-indigo-950/30 border border-indigo-500/30 rounded-2xl p-5 mb-4">
+              <div className="bg-indigo-950/30 border border-indigo-500/30 rounded-2xl p-5 mb-4 flex-shrink-0">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-12 h-12 bg-indigo-900/50 rounded-full flex items-center justify-center border border-indigo-500">
                     {getModeIcon()}
                   </div>
                   <div>
                     <h3 className="text-white font-bold text-base">{activeMode} Health Score</h3>
-                    <p className="text-indigo-400 text-[10px] font-mono uppercase tracking-widest">Real AI Evaluation</p>
+                    <p className="text-indigo-400 text-[10px] font-mono uppercase tracking-widest">Deep AI Evaluation</p>
                   </div>
-                  <div className={`ml-auto text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br ${diagnosis.severity === 'critical' ? 'from-red-500 to-red-800' : 'from-yellow-400 to-orange-500'}`}>
+                  <div className={`ml-auto text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br ${diagnosis.severity === 'critical' || hasFlaws ? 'from-red-500 to-red-800' : 'from-yellow-400 to-orange-500'}`}>
                     {diagnosis.score}
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-3 mb-2">
+              {/* DEEP ANALYSIS PANEL */}
+              <div className="space-y-3 mb-2 flex-shrink-0">
+                
+                {hasFlaws && (
+                  <div className="bg-red-950/40 border border-red-500/50 rounded-xl p-4 shadow-[0_0_15px_rgba(239,68,68,0.2)]">
+                    <div className="flex items-center gap-2 mb-2">
+                      <AlertOctagon className="text-red-500" size={16} />
+                      <h4 className="text-red-400 font-bold text-[10px] uppercase tracking-widest">Critical Flaws Detected</h4>
+                    </div>
+                    <ul className="text-red-200 text-sm list-disc ml-5 space-y-1">
+                      {diagnosis.flaws?.map((flaw, i) => <li key={i}>{flaw}</li>)}
+                    </ul>
+                    <p className="text-xs text-red-400 mt-2 italic font-semibold">→ 3D Model glowing red for emergency localization.</p>
+                  </div>
+                )}
+
                 <div className="bg-slate-900/80 border border-slate-700 rounded-xl p-4">
                   <h4 className="text-slate-400 font-bold text-[10px] uppercase tracking-widest mb-1">Evaluated Disease</h4>
-                  <p className="text-white font-bold">{diagnosis.disease}</p>
-                </div>
-                <div className="bg-slate-900/80 border border-slate-700 rounded-xl p-4">
-                  <h4 className="text-slate-400 font-bold text-[10px] uppercase tracking-widest mb-1">Affected 3D Node</h4>
-                  <p className="text-indigo-300 font-mono text-sm">{diagnosis.affectedNode}</p>
+                  <p className="text-white font-bold mb-3">{diagnosis.disease}</p>
+                  
+                  <h4 className="text-slate-400 font-bold text-[10px] uppercase tracking-widest mb-1">Detailed Explanation</h4>
+                  <p className="text-slate-300 text-sm leading-relaxed mb-3">{diagnosis.explanation || "No deep explanation available."}</p>
+                  
+                  <h4 className="text-orange-400 font-bold text-[10px] uppercase tracking-widest mb-1">Consequences if Ignored</h4>
+                  <p className="text-orange-200 text-sm leading-relaxed mb-3">{diagnosis.consequences || "Unknown."}</p>
+                  
+                  <h4 className="text-green-400 font-bold text-[10px] uppercase tracking-widest mb-1">Immediate Action Plan</h4>
+                  <ul className="text-green-100 text-sm list-decimal ml-5 space-y-1">
+                    {diagnosis.action_plan?.map((action, i) => <li key={i}>{action}</li>)}
+                  </ul>
                 </div>
               </div>
 
               {/* HOSPITAL CHATBOT */}
-              <HospitalChatbot diagnosis={diagnosis} />
+              <HospitalChatbot diagnosis={diagnosis} locationCoords={locationCoords} />
 
               <button 
                 onClick={resetSystem}
-                className="mt-4 w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition-colors border border-slate-700 text-sm"
+                className="mt-4 w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition-colors border border-slate-700 text-sm flex-shrink-0"
               >
                 Evaluate New Report
               </button>
@@ -446,23 +538,29 @@ export default function InteractiveAnatomyIntelligence() {
       <div className="flex-1 relative bg-black flex flex-col cursor-move">
         <div className="absolute top-6 left-6 z-10 flex items-center gap-4 pointer-events-none">
           <div className="bg-black/60 backdrop-blur-md border border-slate-700 px-4 py-2 rounded-lg flex items-center gap-3">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span className={`w-2 h-2 rounded-full animate-pulse ${hasFlaws ? 'bg-red-500' : 'bg-green-500'}`} />
             <span className="text-slate-300 font-bold text-xs uppercase tracking-widest">True GLTF Native Engine</span>
           </div>
+          {hasFlaws && (
+            <div className="bg-red-900/60 backdrop-blur-md border border-red-500/50 px-4 py-2 rounded-lg flex items-center gap-2">
+              <AlertTriangle className="text-red-400" size={14} />
+              <span className="text-red-300 font-bold text-xs uppercase tracking-widest">Emergency Mode Active</span>
+            </div>
+          )}
         </div>
 
         <div className="flex-1 w-full h-full relative">
           <Canvas camera={{ position: [0, 0, 8], fov: 45 }}>
             <color attach="background" args={["#020617"]} />
-            <ambientLight intensity={0.5} />
+            <ambientLight intensity={hasFlaws ? 0.2 : 0.5} />
             <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
-            <pointLight position={[-10, -10, -10]} intensity={0.5} />
+            <pointLight position={[-10, -10, -10]} intensity={hasFlaws ? 1.5 : 0.5} color={hasFlaws ? "red" : "white"} />
             
-            <NativeAnatomyEngine mode={activeMode} isAnalyzed={uploadState === 'complete'} affectedNode={diagnosis?.affectedNode || ""} />
+            <NativeAnatomyEngine mode={activeMode} isAnalyzed={uploadState === 'complete'} hasFlaws={hasFlaws} />
             
             <ContactShadows position={[0, -3.5, 0]} opacity={0.4} scale={20} blur={2} far={4} />
             <OrbitControls enablePan={false} />
-            <Environment preset="city" />
+            <Environment preset={hasFlaws ? "night" : "city"} />
           </Canvas>
         </div>
       </div>
